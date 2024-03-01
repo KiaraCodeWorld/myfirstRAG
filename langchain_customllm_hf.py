@@ -26,7 +26,7 @@ class CustomLLM(LLM):
             "inputs": prompt,
             "parameters": {
                 "max_new_tokens": 1024,
-                "temperature": 0.1,
+                "temperature": 0.2,
                 "top_p": 0.9,
                 "do_sample": False,
                 "return_full_text": False
