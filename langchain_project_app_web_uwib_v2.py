@@ -10,25 +10,12 @@ from langchain.prompts import PromptTemplate
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain.memory import ChatMessageHistory, ConversationBufferMemory
 
-
 #member_api = requests.get("http://localhost:8001/user").text.replace("{", '<').replace("}", '>')
 #{format_instructions}
 template = """Answer the question based only on the  context only, if information not available in context then mention "no information available".
 
-### Output ###
-if the question is related to medication or drug information, please provide the response in bullet points with 
-details about drug name, tier, speciality, wheather covered or not, requirement/limits.
-example : description of drugs
-Tier
-Speciality
-Requirement/Limit
-Covered
-
-### VERIFICATION ###
- Is the above summary accurate based on the original context?
- 
- 
-for all the responses, format the response in clear and bullet point summary.Make sure information is based on context, refining for accuracy.
+### Formatting ###
+for all the responses, format the response in clear and bullet point summary.Make sure information is per context and no additional details be added.
 
 Question: {question}
 Context: {context}
@@ -102,11 +89,11 @@ st.caption("Please enter your questions to get information about your policy or 
 
 # Suggested questions (you can customize these)
 suggested_questions = {
-    "Can you Summarize my policy ?": "Can you Summarize my policy ?",
-    "Give me information related to discounts and rewards": "Give me information related to discounts and rewards",
-    "How to Save on Imaging Services?": "How to Save on Imaging Services?",
-    "How to make payment at florida blue?": "How to make payment at florida blue?",
-    "How to to use healthcare marketplace?": "How to to use healthcare marketplace?",
+    "Why Medications that are not covered?": "Why Medications that are not covered?",
+    "give me information about EMTRIVA - emtricitabine": "give me information about EMTRIVA - emtricitabine",
+    "What are the different medication tiers": "What are the different medication tiers",
+    "How the cost-share for the medication is assigned":"How the cost-share for the medication is assigned",
+    "give me information about Generic drugs": "give me information about Generic drugs",
 }
 
 # Initialize session state
