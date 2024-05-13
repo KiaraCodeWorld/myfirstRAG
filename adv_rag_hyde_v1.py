@@ -15,24 +15,51 @@ from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 from transformers import AutoTokenizer, pipeline
 from langchain import HuggingFacePipeline
 from langchain.chains import RetrievalQA
+from langchain_customllm_hf import CustomLLM
+from sentence_transformers import CrossEncoder
+from sentence_transformers.cross_encoder import CrossEncoder
 
-model_name = "Intel/dynamic_tinybert"
 
-tokenizer = AutoTokenizer.from_pretrained(model_name, padding=True, truncation=True, max_length=512)
+import streamlit as st
+from streamlit_chat import message
+import requests
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_customllm_hf import CustomLLM
+from langchain_community.vectorstores import Chroma
+from langchain.chains import RetrievalQA, ConversationalRetrievalChain
+from langchain.prompts import PromptTemplate
+from langchain.output_parsers import ResponseSchema, StructuredOutputParser
+from langchain.memory import ChatMessageHistory, ConversationBufferMemory
+from langchain.llms import BaseLLM,LLMChain, HypotheticalDocumentEmbedder
+from langchain_community.llms import BaseLLChain
+from langchain.prompts import PromptTemplate
 
-# Define a question-answering pipeline using the model and tokenizer
-question_answerer = pipeline(
-    "question-answering",
-    model=model_name,
-    tokenizer=tokenizer,
-    return_tensors='pt'
-)
+#member_api = requests.get("http://localhost:8001/user").text.replace("{", '<').replace("}", '>')
+#{format_instructions}
+template = """Answer the question based only on the  context only, if information not available in context then mention "no information available".
 
-llm = HuggingFacePipeline(
-    pipeline=question_answerer,
-    model_kwargs={"temperature": 0.7, "max_length": 512},
-)
+### Formatting ###
+for all the responses, format the response in clear and bullet point summary.Make sure information is per context and no additional details be added.
 
-hypothetical_answer = llm.generate_hypothetical_answer("What is the best item at Pizza Hut?")
+Question: {question}
+Context: {context}
 
-print(hypothetical_answer)
+answer:
+"""
+
+llm = CustomLLM()
+def hypothetical_answer(query):
+    print(query)
+    messages = f"""
+            You are a helpful expert Machine Learning and Deep Learning assistant.
+            Provide an example answer to the given question,
+            that might be found in a documents like from Book related to machine Learning and Deep Learning.
+
+            The Question about which you have to give example answer is: {query}
+        """
+    question = query
+    llmChain = LLMChain(llm=llm)
+    response = llmChain({'query': question})
+    return response
+
+print(hypothetical_answer("what is medication guide?"))
