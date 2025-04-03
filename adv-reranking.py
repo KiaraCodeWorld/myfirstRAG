@@ -208,3 +208,46 @@ reranked_docs = sorted(zip(similarity_scores, docs), key=lambda x: x[0], reverse
 print("Reranked Documents:")
 for score, doc in reranked_docs:
     print(f"Score: {score:.4f} - Document: {doc.page_content}")
+
+========= 
+
+Qwn : 
+
+from langchain.embeddings import HuggingFaceBgeEmbeddings
+from langchain.vectorstores import FAISS
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
+# Load BGE embeddings model [[6]][[9]]
+embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-large-en-v1.5")
+
+# Example: Load a vector store (replace with your actual vector store) [[3]]
+vectorstore = FAISS.from_texts(
+    texts=["Doc1 content", "Doc2 content", "Doc3 content"],
+    embedding=embeddings  # Initial embedding model (could be different)
+)
+initial_retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+
+# Get user query
+query = "Your query here"
+
+# Step 1: Retrieve initial documents [[3]]
+initial_docs = initial_retriever.get_relevant_documents(query)
+
+# Step 2: Rerank using BGE embeddings [[6]][[9]]
+query_embedding = embeddings.embed_query(query)
+doc_embeddings = [embeddings.embed_documents([doc.page_content])[0] for doc in initial_docs]
+
+# Calculate cosine similarities
+similarities = [
+    cosine_similarity([query_embedding], [doc_emb])[0][0] 
+    for doc_emb in doc_embeddings
+]
+
+# Sort documents by similarity score
+docs_with_scores = list(zip(initial_docs, similarities))
+docs_with_scores.sort(key=lambda x: x[1], reverse=True)
+reranked_docs = [doc for doc, score in docs_with_scores]
+
+# Use reranked_docs in your RAG pipeline
+print(f"Top document: {reranked_docs[0].page_content}")
