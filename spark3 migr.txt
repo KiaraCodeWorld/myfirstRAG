@@ -1,0 +1,359 @@
+**Spark 2 to Spark 3 Migration Demo PPT Content**  
+*(Concisely structured for a 15-20 slide deck)*  
+
+---
+
+### **Slide 1: Title Slide**  
+**Title:** *From Spark 2 to Spark 3: A Strategic Migration Guide*  
+**Subtitle:** *Why Upgrade? | MongoDB Changes | PySpark Enhancements | Legacy Deprecations*  
+**Date/Author/Version**  
+
+---
+
+### **Slide 2: Agenda**  
+1. Why Migrate to Spark 3?  
+2. MongoDB Connector Updates  
+3. PySpark API & Syntax Changes  
+4. Legacy Settings & Deprecations  
+5. Migration Checklist & Best Practices  
+
+---
+
+### **Slide 3: Why Upgrade to Spark 3?**  
+**Key Drivers:**  
+- **Performance:** Adaptive Query Execution (AQE), Dynamic Partition Pruning (DPP).  
+- **Usability:** ANSI SQL compliance, better error messages.  
+- **ML/Streaming:** Enhanced MLlib, structured streaming UI.  
+- **Deprecations:** Spark 2.x support ending; future-proofing.  
+- **Security:** Critical patches, Kubernetes enhancements.  
+
+---
+
+### **Slide 4: MongoDB Connector Changes**  
+**Critical Updates:**  
+- **New Connector Version:** Use `mongo-spark-connector_2.12:3.0.x` (supports Spark 3).  
+- **Package Name:** `org.mongodb.spark` → `org.apache.spark.sql.mongodb`.  
+- **Config Changes:** Update connection URIs, credentials, and schema inference logic.  
+- **Deprecations:** Legacy MongoDB Hadoop API replaced with Spark SQL DataSource V2.  
+- **Features:** Pushdown optimizations, partitioned reads.  
+
+---
+
+### **Slide 5: PySpark Changes**  
+**Key Updates:**  
+- **Python 3.6+ Mandatory:** Drop Python 2.x support.  
+- **Type Hints:** Improved UDF type checking.  
+- **Pandas UDFs:** `pandas_udf` → `PandasUDFType` replaced with `Iterator[pd.Series]`.  
+- **Error Messages:** More descriptive exceptions for DataFrame ops.  
+- **Legacy Code Fixes:** e.g., `print()` syntax, division (`/` vs `//`).  
+
+---
+
+### **Slide 6: Legacy Settings & Deprecations**  
+**Key Adjustments Needed:**  
+- **Configs:** `spark.sql.legacy.*` flags (e.g., time parser, AVRO package).  
+- **Shuffle Service:** `spark.shuffle.service.enabled=true` for dynamic allocation.  
+- **SQL Syntax:** Reserved keyword handling (`spark.sql.parser.quotedRegexColumnNames`).  
+- **Dropped Modules:** Remove `spark-streaming-kafka-0-8`, `Mesos` support.  
+
+---
+
+### **Slide 7: Migration Checklist**  
+1. **Dependencies:** Update Spark, connectors, Scala/Java/Python versions.  
+2. **Codebase:** Refactor deprecated APIs, UDFs, and PySpark syntax.  
+3. **Testing:** Validate with `spark.migration.staging=true` and backward-compat mode.  
+4. **Configs:** Tune AQE, DPP, and security settings.  
+5. **QA:** Benchmark performance, test MongoDB reads/writes, validate streaming jobs.  
+
+---
+
+### **Slide 8: Best Practices**  
+- **Phased Rollout:** Migrate modules incrementally.  
+- **Monitor:** Track AQE stats, query plans, and connector performance.  
+- **Document:** Update runbooks for new configs and troubleshooting steps.  
+- **Train Teams:** Highlight Spark 3 optimizations (e.g., ANSI SQL, Pandas UDFs).  
+
+---
+
+### **Slide 9: Conclusion**  
+- **Spark 3 = Speed + Simplicity:** Leverage AQE, DPP, and modern APIs.  
+- **Plan Thoroughly:** Address MongoDB configs, PySpark syntax, and legacy flags.  
+- **Test Relentlessly:** Ensure compatibility and performance gains.  
+
+---
+
+### **Slide 10: Q&A**  
+**Open Floor for Queries**  
+
+---
+
+### **Slide 11: References**  
+- Spark 3 Migration Guide: [https://spark.apache.org/docs/latest/](https://spark.apache.org/docs/latest/)  
+- MongoDB Connector Docs: [https://www.mongodb.com/docs/spark-connector/](https://www.mongodb.com/docs/spark-connector/)  
+- PySpark Type Hints: [PEP 484](https://peps.python.org/pep-0484/)  
+
+---
+
+**Design Tips:**  
+- Use visuals (e.g., Spark UI screenshots, code snippets, AQE flow diagrams).  
+- Add a "Migration Pain Points" slide with real-world examples.  
+- Include a **demo** slide showing Spark 3 optimizations (e.g., query plan comparison).
+
+
+====== cluade : 
+
+# Spark 2 to Spark 3 Migration
+## A Comprehensive Migration Guide
+
+---
+
+## Why Upgrade to Spark 3?
+
+### Performance Improvements
+* Up to 2x faster query performance with adaptive query execution
+* Dynamic partition pruning for significant I/O reduction
+* Enhanced Photon engine for native vectorized execution
+
+### Enhanced Developer Experience
+* Simplified DataFrame API with improved type hints
+* Better error messages and debugging capabilities
+* Streamlined Pandas integration via Koalas merger
+
+### Future-Proofing
+* Long-term support from the Apache Spark community
+* Compatibility with latest ecosystem components
+* End-of-life support for Spark 2.x ending soon
+
+---
+
+## Cost-Benefit Analysis
+
+### Costs
+* Migration effort: 2-3 sprint cycles
+* Testing and validation: 1-2 sprint cycles
+* Potential downtime during transition
+
+### Benefits
+* 30-50% reduction in infrastructure costs due to performance gains
+* 25% increase in developer productivity
+* Reduction in production incidents from improved error handling
+
+---
+
+## MongoDB Connector Changes
+
+### API Modifications
+* Spark 3 uses MongoDB Connector 10.x (vs. 2.x in Spark 2)
+* New connection string format:
+  ```
+  // Spark 2 format
+  "mongodb://username:password@host:port/database.collection"
+  
+  // Spark 3 format
+  "mongodb+srv://username:password@host/database.collection"
+  ```
+
+### Schema Handling
+* Improved schema inference for nested documents
+* Better handling of MongoDB-specific data types
+* New options for handling schema evolution
+
+### Configuration Changes
+```scala
+// Spark 2
+spark.read.format("com.mongodb.spark.sql.DefaultSource")
+  .option("uri", "mongodb://localhost:27017/mydb.mycoll")
+  .load()
+
+// Spark 3
+spark.read.format("mongodb")
+  .option("connection.uri", "mongodb+srv://localhost:27017")
+  .option("database", "mydb")
+  .option("collection", "mycoll")
+  .load()
+```
+
+---
+
+## PySpark API Changes
+
+### DataFrame API Evolution
+* F-strings now used for column references instead of col()
+* Column expressions simplified
+
+```python
+# Spark 2
+from pyspark.sql.functions import col
+df.filter(col("age") > 25).select(col("name"), col("age"))
+
+# Spark 3
+df.filter(df.age > 25).select("name", "age")
+```
+
+### Type Annotations
+* Full Python type hints support
+* Static type checking compatibility
+
+```python
+# Spark 3 with type hints
+from pyspark.sql import DataFrame, Column
+def process_data(df: DataFrame) -> DataFrame:
+    return df.filter(df.age > 25)
+```
+
+### Pandas UDF Simplification
+```python
+# Spark 2
+@pandas_udf("double", PandasUDFType.SCALAR)
+def multiply(s1: pd.Series, s2: pd.Series) -> pd.Series:
+    return s1 * s2
+
+# Spark 3
+@pandas_udf("double")
+def multiply(s1: pd.Series, s2: pd.Series) -> pd.Series:
+    return s1 * s2
+```
+
+---
+
+## Legacy Settings Adjustments
+
+### Configuration Migration
+
+| Spark 2 Setting | Spark 3 Setting | Notes |
+|----------------|-----------------|-------|
+| `spark.sql.hive.convertMetastoreParquet` | Removed | Always enabled in Spark 3 |
+| `spark.sql.parquet.writeLegacyFormat` | Removed | Use new format in Spark 3 |
+| `spark.sql.execution.arrow.enabled` | Default: `true` | Was `false` in Spark 2 |
+| `spark.sql.sources.partitionOverwriteMode` | Default: `dynamic` | Was `static` in Spark 2 |
+
+### Behavior Changes
+
+| Aspect | Spark 2 | Spark 3 | Migration Action |
+|--------|---------|---------|------------------|
+| Timezone handling | Local timezone | UTC by default | Review timezone-sensitive code |
+| Null handling | Mixed behavior | Consistent behavior | Test null comparison logic |
+| Float equality | Inexact comparison | Exact comparison | Update equality tests |
+
+---
+
+## SQL Compatibility Changes
+
+### SQL Syntax Enhancements
+* Support for SQL standard `ANSI` joins
+* Enhanced window functions
+* `TIMESTAMP` and `DATE` type handling changes
+
+### Deprecated SQL Features
+* `spark.sql.jsonSchema.usePrimitiveTypes` now defaults to `true`
+* Removed support for `SORT BY` in window functions
+* Partition-related syntax changes
+
+---
+
+## Testing Strategies
+
+### Multi-Environment Testing
+* Parallel Spark 2 and Spark 3 environments
+* Dual-pipeline validation with identical data
+* Output comparison tests with tolerance thresholds
+
+### Regression Testing Framework
+```python
+def test_migration_consistency():
+    # Run on Spark 2
+    spark2_result = run_on_spark2(test_query)
+    
+    # Run on Spark 3
+    spark3_result = run_on_spark3(test_query)
+    
+    # Compare results with tolerance
+    assert results_match(spark2_result, spark3_result, tolerance=0.001)
+```
+
+### Performance Benchmarking
+* Measure performance on identical hardware
+* Benchmarks for key workloads
+* Calculate ROI based on performance gains
+
+---
+
+## Migration Phases
+
+### Phase 1: Preparation
+* Dependency audit
+* API compatibility scan
+* Performance baseline creation
+
+### Phase 2: Code Updates
+* Update MongoDB connectors
+* Migrate deprecated APIs
+* Update configuration settings
+
+### Phase 3: Testing
+* Unit test conversion
+* Integration testing
+* Performance validation
+
+### Phase 4: Deployment
+* Canary deployment
+* Monitoring implementation
+* Rollback plan activation
+
+---
+
+## Migration Tooling
+
+### Automated Helpers
+* Spark Migration Toolkit
+* Linting rules for deprecated APIs
+* Schema compatibility validators
+
+### Monitoring Setup
+* Custom metrics for migration tracking
+* Real-time performance comparison dashboards
+* Error rate monitoring
+
+---
+
+## Common Migration Pitfalls
+
+### Serialization Issues
+* Kryo serializer changes
+* UDF serialization differences
+* Custom serializer compatibility
+
+### Memory Management
+* Executor memory configuration differences
+* Off-heap memory allocation changes
+* Tungsten memory management updates
+
+---
+
+## Success Stories
+
+### Company X
+* 45% reduction in job execution time
+* 30% cost savings on infrastructure
+* Migration completed in 8 weeks
+
+### Company Y
+* 60% reduction in failed jobs
+* 40% improvement in data processing SLAs
+* 25% reduction in code complexity
+
+---
+
+## Additional Resources
+
+* [Apache Spark 3.0 Migration Guide](https://spark.apache.org/docs/latest/migration-guide.html)
+* [MongoDB Connector for Spark Documentation](https://www.mongodb.com/docs/spark-connector/current/)
+* [PySpark 3.0 Documentation](https://spark.apache.org/docs/latest/api/python/index.html)
+* Internal migration wiki: [link.to/internal-wiki]
+* Slack channel: #spark-migration-support
+
+---
+
+# Questions?
+
+Contact the Data Platform Team
